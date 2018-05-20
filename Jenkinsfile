@@ -8,9 +8,16 @@ pipeline{
 			post{
 				success{
 					echo 'Now Archiving....'
-					archiveArtifacts artifacts: '**/*.war'
+					archiveArtifacts artifacts: '**/proTarget/*.war'
 				}
 			}			
-		}		
+		}
+		
+		stage('Deploy to Stage'){
+			steps{
+				build job: 'maven-project-deploy-to-stage'
+			}				
+		}
+		
    }
 }
