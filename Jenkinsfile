@@ -1,41 +1,35 @@
-pipeline{
-   agent any
-   stages('Init'){
-		stage('BuildTest'){
-			steps{
-				sh 'mvn clean package'
-			}
-			post{
-				success{
-					echo 'Now Archiving....'
-					archiveArtifacts artifacts: '**/target/*.war'
-				}
-			}			
-		}
-		
-		stage('Deploy to Stage'){
-			steps{
-				build job: 'maven-project-deploy-to-stage'
-			}				
-		}
+pipeline {
+    agent any
 
-		stage ('Deploy to Production'){
-            steps{
-                timeout(time:5, unit:'DAYS'){
-                    input message:'Approve PRODUCTION Deployment?'
-                }
+    parameters {
+		string(name: 'tomcat_prod', defaultValue: '35.164.26.78', description: 'Production Server')
+    }
 
-                build job: 'maven-project-deploy-to-prod'
+    triggers {
+         pollSCM('* * * * *')
+     }
+
+	stages{
+        stage('Build'){
+            steps {
+                sh 'mvn clean package'
             }
             post {
                 success {
-                    echo 'Code deployed to Production Sucessfully.'
-                }
-
-                failure {
-                    echo ' Deployment failed!.'
+                    echo 'Now Archiving...'
+                    archiveArtifacts artifacts: '**/target/*.war'
                 }
             }
-        }		
-   }
+        }
+
+        stage ('Deployments'){
+            parallel{
+                stage ("Deploy to Production"){
+                    steps {
+                        sh "scp -i C:\Users\pc\Desktop\works\Tomcat_Maven_Project.pem **/target/*.war ec2-user@${params.tomcat_prod}:/var/lib/tomcat8/webapps"
+                    }
+                }
+            }
+        }
+    }
 }
