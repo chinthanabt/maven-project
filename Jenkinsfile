@@ -1,23 +1,16 @@
-pipeline {
+pipeline{
    agent any
-   stages('Init') {
-		stage('Test') {
-			steps {
-				echo("Testing.....")
+   stages('Init'){
+		stage('BuildTest'){
+			steps{
+				sh 'mvn clean package'
 			}
-		}
-		
-		stage('Build') {
-			steps {
-				echo("Building.....")
-			}
-		}
-		
-	    stage('Archive') {
-			steps {
-				echo("Copy archive.....")
-			}
-		}
+			post{
+				success{
+					echo 'Now Archiving....'
+					archiveArtifcts articats: '**/*.war'
+				}
+			}			
+		}		
    }
-
 }
