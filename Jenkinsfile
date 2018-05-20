@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     parameters {
-		string(name: 'tomcat_prod', defaultValue: '35.164.26.78', description: 'Production Server')
+		string(name: 'tomcat_prod', defaultValue: '34.216.225.54', description: 'Production Server')
     }
 
     triggers {
@@ -23,7 +23,7 @@ pipeline {
         }
 	    stage ("Deploy to Production"){
             steps {
-                sh "scp -i C:/Users/pc/Desktop/works/Tomcat_Maven_Project.pem **/target/*.war ec2-user@${params.tomcat_prod}:/var/lib/tomcat8/webapps"
+                sh "scp -i C:/Users/pc/Desktop/works/tomcat-key-pair.pem **/target/*.war ec2-user@${params.tomcat_prod}:/var/lib/tomcat8/webapps"
             }
          }
     }
